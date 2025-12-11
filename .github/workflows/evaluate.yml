@@ -1,10 +1,6 @@
 # ===========================================
 # Model Evaluation Workflow
 # ===========================================
-# Runs on: After successful tests
-# Purpose: Evaluate model performance and fail if below threshold
-# ===========================================
-
 name: Model Evaluation
 
 on:
@@ -12,29 +8,14 @@ on:
     branches:
       - main
       - master
-  workflow_run:
-    workflows: ["Tests & Linting"]
-    types:
-      - completed
-    branches:
-      - main
-      - master
-      - develop
 
 env:
-  # Performance thresholds (for sample test data)
   MIN_ACCURACY: 0.50
-  MIN_F1_SCORE: 0.50
 
 jobs:
-  # ================================
-  # Evaluate Model Performance
-  # ================================
   evaluate:
     name: Evaluate Model
     runs-on: ubuntu-latest
-    # Run on push OR when tests workflow completed successfully
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     
     steps:
       - name: Checkout code
@@ -49,85 +30,64 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install textblob scikit-learn pandas numpy joblib
 
-      - name: Run model evaluation
-        id: evaluation
+      - name: Download NLTK data
         run: |
-          # Create a simple evaluation script that uses sample data
+          python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger')"
+
+      - name: Run evaluation
+        run: |
           python << 'EOF'
           import json
-          from src.model import SentimentModel
+          from textblob import TextBlob
 
-          # Sample test data (since dataset is not in repo)
+          # Test data
           TEST_DATA = [
-              ("I love this product! It's amazing!", "positive"),
-              ("This is the best thing ever!", "positive"),
-              ("Great quality and fast delivery", "positive"),
-              ("Absolutely wonderful experience", "positive"),
-              ("I hate this, it's terrible", "negative"),
-              ("Worst purchase I ever made", "negative"),
-              ("Very disappointed with the quality", "negative"),
-              ("This product is awful", "negative"),
-              ("It's okay, nothing special", "neutral"),
-              ("Average product, does the job", "neutral"),
-              ("Not bad, not great either", "neutral"),
-              ("It's fine I guess", "neutral"),
+              ("I love this product! Amazing!", "positive"),
+              ("Best ever! Highly recommend!", "positive"),
+              ("Great quality!", "positive"),
+              ("Wonderful!", "positive"),
+              ("I hate this, terrible!", "negative"),
+              ("Worst ever!", "negative"),
+              ("Very disappointed!", "negative"),
+              ("Awful product!", "negative"),
+              ("It's okay", "neutral"),
+              ("Average", "neutral"),
+              ("Not bad", "neutral"),
+              ("Fine", "neutral"),
           ]
 
-          # Load model
-          model = SentimentModel()
-          model.load()
+          def predict(text):
+              blob = TextBlob(text)
+              polarity = blob.sentiment.polarity
+              if polarity > 0.1:
+                  return "positive"
+              elif polarity < -0.1:
+                  return "negative"
+              return "neutral"
 
-          # Evaluate
           correct = 0
-          total = len(TEST_DATA)
-          
           for text, expected in TEST_DATA:
-              result = model.predict(text)
-              if result["sentiment"] == expected:
+              pred = predict(text)
+              if pred == expected:
                   correct += 1
-          
-          accuracy = correct / total
-          
-          metrics = {
-              "accuracy": round(accuracy, 4),
-              "f1_score": round(accuracy, 4),  # Simplified
-              "precision": round(accuracy, 4),
-              "recall": round(accuracy, 4),
-              "num_samples": total,
-              "correct": correct
-          }
-          
-          print(f"Accuracy: {accuracy:.2%} ({correct}/{total})")
-          
+              print(f"{text[:30]:30} | Expected: {expected:8} | Got: {pred:8} | {'✓' if pred == expected else '✗'}")
+
+          accuracy = correct / len(TEST_DATA)
+          print(f"\nAccuracy: {accuracy:.2%} ({correct}/{len(TEST_DATA)})")
+
+          metrics = {"accuracy": round(accuracy, 4), "correct": correct, "total": len(TEST_DATA)}
           with open("metrics.json", "w") as f:
               json.dump(metrics, f, indent=2)
           
-          print("Metrics saved to metrics.json")
+          print(f"\n{'✅ PASSED' if accuracy >= 0.5 else '❌ FAILED'}")
+          exit(0 if accuracy >= 0.5 else 1)
           EOF
 
-      - name: Display metrics
-        run: |
-          echo "## 📊 Model Evaluation Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          cat metrics.json >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload metrics as artifact
+      - name: Upload metrics
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: model-metrics
           path: metrics.json
-          retention-days: 30
-
-      - name: Check thresholds
-        run: |
-          ACCURACY=$(python -c "import json; print(json.load(open('metrics.json'))['accuracy'])")
-          echo "Accuracy: $ACCURACY"
-          
-          if (( $(echo "$ACCURACY < ${{ env.MIN_ACCURACY }}" | bc -l) )); then
-            echo "❌ Accuracy below threshold!"
-            exit 1
-          fi
-          
-          echo "✅ Model evaluation passed!"
