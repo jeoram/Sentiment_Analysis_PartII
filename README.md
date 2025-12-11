@@ -1,5 +1,8 @@
 # Sentiment Analysis API - MLOps Pipeline
 
+![Tests](https://github.com/jeoram/Sentiment_Analysis_PartII/actions/workflows/test.yml/badge.svg)
+![Evaluation](https://github.com/jeoram/Sentiment_Analysis_PartII/actions/workflows/evaluate.yml/badge.svg)
+
 A complete MLOps pipeline for sentiment analysis with Docker containerization and GitHub Actions CI/CD.
 
 ## 🚀 Features
