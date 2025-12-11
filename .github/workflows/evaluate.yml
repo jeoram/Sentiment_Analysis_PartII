@@ -14,6 +14,7 @@ on:
       - completed
     branches:
       - main
+      - master
       - develop
 
 env:
