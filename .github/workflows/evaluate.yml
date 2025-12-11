@@ -8,6 +8,10 @@
 name: Model Evaluation
 
 on:
+  push:
+    branches:
+      - main
+      - master
   workflow_run:
     workflows: ["Tests & Linting"]
     types:
@@ -29,8 +33,8 @@ jobs:
   evaluate:
     name: Evaluate Model
     runs-on: ubuntu-latest
-    # Only run if tests passed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Run on push OR when tests workflow completed successfully
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     
     steps:
       - name: Checkout code
