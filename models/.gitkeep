@@ -1,0 +1,6 @@
+# This directory contains trained models
+# Files to persist:
+# - sentiment_model.joblib (trained sklearn model)
+# - vectorizer.joblib (TF-IDF vectorizer)
+# 
+# These files are mounted as Docker volumes for persistence

@@ -1,0 +1,118 @@
+# ===========================================
+# Docker Compose - Sentiment Analysis Pipeline
+# ===========================================
+# Services:
+#   - api: FastAPI sentiment prediction service
+#   - mongodb: Database for storing logs and predictions
+#   - mongo-express: Web UI for MongoDB (dev only)
+# ===========================================
+
+version: '3.8'
+
+services:
+  # ================================
+  # Sentiment Analysis API Service
+  # ================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_PATH=/app/models
+      - DATA_PATH=/app/data
+      - LOG_PATH=/app/logs
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB=sentiment_db
+    volumes:
+      - models-data:/app/models
+      - app-data:/app/data
+      - logs-data:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - sentiment-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ================================
+  # MongoDB - Database for Logs
+  # ================================
+  mongodb:
+    image: mongo:7.0
+    container_name: sentiment-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=sentiment_db
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - sentiment-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================
+  # Mongo Express - Web UI (Dev Only)
+  # ================================
+  mongo-express:
+    image: mongo-express:latest
+    container_name: sentiment-mongo-ui
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    depends_on:
+      - mongodb
+    networks:
+      - sentiment-network
+    restart: unless-stopped
+    profiles:
+      - dev # Only starts with: docker-compose --profile dev up
+
+# ================================
+# Networks Configuration
+# ================================
+networks:
+  sentiment-network:
+    driver: bridge
+    name: sentiment-network
+
+# ================================
+# Volumes Configuration
+# ================================
+volumes:
+  # Trained ML models persistence
+  models-data:
+    name: sentiment-models
+    driver: local
+
+  # Application data persistence
+  app-data:
+    name: sentiment-data
+    driver: local
+
+  # Logs persistence
+  logs-data:
+    name: sentiment-logs
+    driver: local
+
+  # MongoDB data persistence
+  mongodb-data:
+    name: sentiment-mongodb
+    driver: local

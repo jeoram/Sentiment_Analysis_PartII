@@ -1,0 +1,7 @@
+# This directory contains datasets
+# Files to persist:
+# - train.csv (training dataset)
+# - test.csv (test dataset)
+# - predictions.csv (prediction history)
+#
+# These files are mounted as Docker volumes for persistence

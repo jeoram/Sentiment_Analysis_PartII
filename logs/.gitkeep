@@ -1,0 +1,7 @@
+# This directory contains application logs
+# Files to persist:
+# - app.log (application logs)
+# - predictions.log (prediction history with timestamps)
+# - metrics.log (model performance metrics)
+#
+# These files are mounted as Docker volumes for persistence
