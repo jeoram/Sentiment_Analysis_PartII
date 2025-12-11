@@ -122,7 +122,7 @@ The GitHub Actions pipeline consists of 3 workflows:
 | Secret | Description |
 |--------|-------------|
 | `DOCKERHUB_USERNAME` | Docker Hub username |
-| `DOCKERHUB_TOKEN` | Docker Hub access token |
+| `DOCKERHUB_PASSWORD` | Docker Hub password |
 
 ## 👥 Authors
 
