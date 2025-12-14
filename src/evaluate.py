@@ -141,10 +141,10 @@ def main():
 
     # Exit with error if accuracy is too low
     if metrics["accuracy"] < 0.5:
-        print("⚠️ WARNING: Model accuracy is below 50%!")
+        print("[WARNING] Model accuracy is below 50%!")
         sys.exit(1)
 
-    print(f"✅ Model evaluation passed with {metrics['accuracy']*100:.1f}% accuracy")
+    print(f"[PASS] Model evaluation passed with {metrics['accuracy']*100:.1f}% accuracy")
     sys.exit(0)
 
 

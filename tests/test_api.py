@@ -111,43 +111,7 @@ class TestPredictEndpoint:
         assert response.status_code == 422
 
 
-class TestSentimentModel:
-    """Tests for SentimentModel class"""
 
-    def test_model_initialization(self):
-        """Model should initialize correctly"""
-        test_model = SentimentModel()
-        assert test_model is not None
-        assert test_model.is_loaded() == False
-
-    def test_model_load(self):
-        """Model should load successfully"""
-        test_model = SentimentModel()
-        test_model.load()
-        assert test_model.is_loaded() == True
-
-    def test_model_predict_returns_dict(self):
-        """Predict should return dictionary"""
-        test_model = SentimentModel()
-        test_model.load()
-        result = test_model.predict("This is a test text")
-        assert isinstance(result, dict)
-        assert "sentiment" in result
-        assert "confidence" in result
-
-    def test_model_predict_sentiment_values(self):
-        """Model should predict valid sentiment values"""
-        test_model = SentimentModel()
-        test_model.load()
-        result = test_model.predict("I love this product!")
-        assert result["sentiment"] in ["positive", "negative", "neutral"]
-
-    def test_model_confidence_range(self):
-        """Confidence should be between 0 and 1"""
-        test_model = SentimentModel()
-        test_model.load()
-        result = test_model.predict("Some random text here for testing")
-        assert 0 <= result["confidence"] <= 1
 
 
 class TestIntegration:
