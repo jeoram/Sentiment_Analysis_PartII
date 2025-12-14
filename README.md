@@ -124,9 +124,9 @@ The GitHub Actions pipeline consists of 3 workflows:
 | `DOCKERHUB_USERNAME` | Your Docker Hub username |
 | `DOCKERHUB_PASSWORD` | Your Docker Hub password |
 
-## 👥 Authors
+## 👥 Authors & Partener
 
-- [Your Name]
+- [Edawrd & Kennedy]
 
 ## 📄 License
 
