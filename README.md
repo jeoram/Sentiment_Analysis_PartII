@@ -126,7 +126,7 @@ The GitHub Actions pipeline consists of 3 workflows:
 
 ## 👥 Authors & Partener
 
-- [Edawrd & Kennedy]
+- [Edward & Kennedy]
 
 ## 📄 License
 
