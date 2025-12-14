@@ -8,7 +8,6 @@ on:
     workflows: ["Model Evaluation"]
     types:
       - completed
-  
   workflow_dispatch:
     inputs:
       tag:

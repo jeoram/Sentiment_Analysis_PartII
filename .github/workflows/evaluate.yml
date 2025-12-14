@@ -8,6 +8,7 @@ on:
     workflows: ["Tests & Linting"]
     types:
       - completed
+  workflow_dispatch:
 
 env:
   MIN_ACCURACY: 0.50
