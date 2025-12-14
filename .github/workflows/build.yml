@@ -4,7 +4,10 @@
 name: Docker Build & Push
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Model Evaluation"]
+    types:
+      - completed
     branches:
       - main
       - master
@@ -24,6 +27,7 @@ jobs:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
