@@ -1,4 +1,4 @@
-# Sentiment Analysis API - MLOps Pipeline
+  ²# Sentiment Analysis API - MLOps Pipeline
 
 ![Tests](https://github.com/jeoram/Sentiment_Analysis_PartII/actions/workflows/test.yml/badge.svg)
 ![Evaluation](https://github.com/jeoram/Sentiment_Analysis_PartII/actions/workflows/evaluate.yml/badge.svg)
